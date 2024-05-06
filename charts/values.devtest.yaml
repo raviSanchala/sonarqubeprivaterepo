@@ -1,0 +1,191 @@
+---
+replicaCount: 1
+image:
+  repository: sonarqube
+  tag: 9.9.2-enterprise
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # # choice for the user. This also increases chances charts run on environments with little
+  # # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: "8"
+    memory: 16Gi
+  requests:
+    cpu: 100m
+    memory: 4076Mi
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/ingress.allow-http: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: 8000m
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/use-regex: "true"
+  hosts:
+    - name: dev.sonarqube.gsk.com
+      path: /?(.*)
+  tls:
+    - secretName: sonarqube-tls
+      hosts:
+        - dev.sonarqube.gsk.com
+sonarProperties:
+  email.smtp_host.secured: uk1vapp0015.corpnet2.com
+  email.prefix:
+    - SONARQUBE
+  email.from: sonarqube@gsk.com
+  sonar.auth.saml.enabled: true
+  sonar.auth.saml.providerName: SAML
+  sonar.auth.saml.user.login: immutableID
+  sonar.auth.saml.user.name: givenname
+  sonar.auth.saml.user.email: email
+  sonar.auth.saml.group.name: groups
+  sonar.auth.saml.applicationId: sonarqube-dev-ext
+  sonar.auth.saml.providerId: https://federation-qa.gsk.com
+  sonar.auth.saml.loginUrl: https://federation-qa.gsk.com/idp/SSO.saml2
+  sonar.search.javaAdditionalOpts: -Dlog4j2.formatMsgNoLookups=true
+  sonar.auth.saml.certificate.secured: >
+    -----BEGIN CERTIFICATE-----
+    MIIFVjCCBD6gAwIBAgITeQAE2KbujvLZN9/PGwAAAATYpjANBgkqhkiG9w0BAQsFADB2MRMwEQYK
+    CZImiZPyLGQBGRYDY29tMRgwFgYKCZImiZPyLGQBGRYIY29ycG5ldDExGTAXBgoJkiaJk/IsZAEZ
+    Fgl3bXNlcnZpY2UxKjAoBgNVBAMTIVdNU0VSVklDRSBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkgMjAe
+    Fw0yMzAyMTYwOTIwNDFaFw0yNzAyMTUwOTIwNDFaMHgxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJO
+    QzEMMAoGA1UEBxMDUlRQMRAwDgYDVQQKEwdHU0sgTExDMR8wHQYDVQQLExZBZHZhbmNlZEF1dGhl
+    bnRpY2F0aW9uMRswGQYDVQQDExJmZWRlcmF0aW9uLmdzay5jb20wggEiMA0GCSqGSIb3DQEBAQUA
+    A4IBDwAwggEKAoIBAQDLUmStEt4C2kqdRXMkvp4pVBsbiCVxMgKBl6pfYZH6dd5Ape9DFPwAXGPK
+    1Z4z+VchE8hgItRu1JpTXyFGs1Ty7OnyQ7GKRxCV5uNoWmhGaEIMfoPHcu6BgaUsE7Uu5SdAqSAW
+    f/MGxuRxNU80hdPaFzabdKyeODwIJMevr1l4+db2tPOjHCFTBtjJhqkc1wFL0m2dqFX/4wFTzsDB
+    Hvr+jm8BpgWnrdzQf7brhqnJ31hA/toOya4ClEm+XiQpxLdeoxO3IkLEpOPmtxGqNJGDQnSMlkuC
+    kFvoC01RMwp/iJIxhygwrS94stDFJRN3e/wcjhSbID3mgPmML7okzNJzAgMBAAGjggHZMIIB1TAd
+    BgNVHREEFjAUghJmZWRlcmF0aW9uLmdzay5jb20wHQYDVR0OBBYEFCp7N5EJh/sJklbSQLzrRvMW
+    7y91MB8GA1UdIwQYMBaAFN99YYndiL9gZh0blaKK7CEdW3IcMFMGA1UdHwRMMEowSKBGoESGQmh0
+    dHA6Ly9wa2kuZ3NrLmNvbS9jZHAvV01TRVJWSUNFJTIwQ2VydGlmaWNhdGUlMjBBdXRob3JpdHkl
+    MjAyLmNybDCBgwYIKwYBBQUHAQEEdzB1ME4GCCsGAQUFBzAChkJodHRwOi8vcGtpLmdzay5jb20v
+    Y2RwL1dNU0VSVklDRSUyMENlcnRpZmljYXRlJTIwQXV0aG9yaXR5JTIwMi5jcnQwIwYIKwYBBQUH
+    MAGGF2h0dHA6Ly9wa2kuZ3NrLmNvbS9vY3NwMA4GA1UdDwEB/wQEAwIHgDA9BgkrBgEEAYI3FQcE
+    MDAuBiYrBgEEAYI3FQjq8iuD+q5AhfWTHIWSgUKF5P5ZgVSDwL9RhoDWJgIBZAIBMTAfBgNVHSUE
+    GDAWBgorBgEEAYI3CgMMBggrBgEFBQcDAjApBgkrBgEEAYI3FQoEHDAaMAwGCisGAQQBgjcKAwww
+    CgYIKwYBBQUHAwIwDQYJKoZIhvcNAQELBQADggEBADeDLe55RZVmPZc2LJlyK9hvHjMXVXSj+GBc
+    6zG/8qAL67hmQFYqrYItRbgqAm0GVf1RVrkf8IaYnNCuo0sAlO66oIJ4snXsTTi/c1H2+xGl3AU8
+    E9x+WpHC5fiMV4geuGDXLTfFcG6KnakYtV2Vc+78Ybblpxe4mWEqZ5mqRyBl56uWFI/VhlqZsnDF
+    QKvJ4nEI+vynwz+Vo26Rs7NpOee9stwA9In0uJh8CMuBT3m7VPO7/DSVY82AjPSvcSGo1UxCwJsR
+    wtuPKg9ZIXB8TZtCp4kfd0aa0S4N72y5eEJkwtzZCmpa5aCrr6qqUdTmm8lhmV1S7pJMpuPTt3kq
+    OPk= -----END CERTIFICATE-----
+  sonar.core.serverBaseURL: https://dev.sonarqube.gsk.com
+  sonar.dbcleaner.branchesToKeepWhenInactive: main, master, develop, trunk
+  sonar.ce.javaOpts: -Xmx6G -Xms128m -XX:+HeapDumpOnOutOfMemoryError
+livenessProbe:
+  initialDelaySeconds: 120
+  periodSeconds: 60
+  failureThreshold: 6
+  successThreshold: 1
+  timeoutSeconds: 1
+readinessProbe:
+  initialDelaySeconds: 90
+  periodSeconds: 30
+  failureThreshold: 6
+  successThreshold: 1
+  timeoutSeconds: 1
+startupProbe:
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  failureThreshold: 24
+resources:
+  limits:
+    cpu: 800m
+    memory: 8192M
+  requests:
+    cpu: 400m
+    memory: 4Gi
+
+initContainers:
+  # image: busybox:1.32
+  # We allow the init containers to have a separate security context declaration because
+  # the initContainer may not require the same as SonarQube.
+  # securityContext: {}
+  # We allow the init containers to have a separate resources declaration because
+  # the initContainer does not take as much resources.
+  resources: {}
+
+# Extra init containers to e.g. download required artifacts
+extraInitContainers: {}
+
+## Array of extra containers to run alongside the sonarqube container
+##
+## Example:
+## - name: myapp-container
+##   image: busybox
+##   command: ['sh', '-c', 'echo Hello && sleep 3600']
+##
+extraContainers: []
+
+## Provide a secret containing one or more certificate files in the keys that will be added to cacerts
+## The cacerts file will be set via SONARQUBE_WEB_JVM_OPTS and SONAR_CE_JAVAOPTS
+##
+caCerts:
+  enabled: false
+  image: adoptopenjdk/openjdk11:alpine
+  secret: your-secret
+
+initSysctl:
+  enabled: false
+  vmMaxMapCount: 524288
+  fsFileMax: 131072
+  nofile: 131072
+  nproc: 8192
+  # image: busybox:1.32
+  securityContext:
+    privileged: true
+
+initFs:
+  enabled: false
+  # image: busybox:1.32
+  securityContext:
+    privileged: true
+
+prometheusExporter:
+  enabled: false
+  # jmx_prometheus_javaagent version to download from Maven Central
+  version: "0.16.0"
+  # Alternative full download URL for the jmx_prometheus_javaagent.jar (overrides prometheusExporter.version)
+  # downloadURL: ""
+  # if you need to ignore TLS certificates for whatever reason enable the following flag
+  noCheckCertificate: false
+
+  # Ports for the jmx prometheus agent to export metrics at
+  webBeanPort: 8000
+  ceBeanPort: 8001
+
+  config:
+    rules:
+      - pattern: ".*"
+  # Overrides config for the CE process Prometheus exporter (by default, the same rules are used for both the Web and CE processes).
+  # ceConfig:
+  #   rules:
+  #     - pattern: ".*"
+  # image: curlimages/curl:7.76.1
+  # For use behind a corporate proxy when downloading prometheus
+  # httpProxy: ""
+  # httpsProxy: ""
+  # noProxy: ""
+  # Setting the security context to the default sonarqube user 1000/1000
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    
+plugins:
+  install:
+   - https://github.com/sbaudoin/sonar-shellcheck/releases/download/v2.5.0/sonar-shellcheck-plugin-2.5.0.jar
+   - https://github.com/cnescatlab/sonar-cnes-report/releases/download/4.2.0/sonar-cnes-report-4.2.0.jar
+   - https://github.com/wttech/AEM-Rules-for-SonarQube/releases/download/v1.6/sonar-aemrules-plugin-1.6.jar
+   - https://github.com/sbaudoin/sonar-yaml/releases/download/v1.9.1/sonar-yaml-plugin-1.9.1.jar
+   - https://github.com/Inform-Software/sonar-groovy/releases/download/1.8/sonar-groovy-plugin-1.8.jar
+   - https://github.com/spotbugs/sonar-findbugs/releases/download/4.2.4/sonar-findbugs-plugin-4.2.4.jar
+   - https://github.com/sbaudoin/sonar-ansible/releases/download/v2.5.1/sonar-ansible-plugin-2.5.1.jar
+
+postgresql:
+  enabled: false
+  postgresqlServer: ""
+  postgresqlUsername: ""
+  postgresqlPassword: ""
+  postgresqlDatabase: sonarqube

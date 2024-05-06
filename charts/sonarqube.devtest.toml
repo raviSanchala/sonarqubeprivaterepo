@@ -1,0 +1,67 @@
+[metadata]
+  org = "devtest"
+
+# using a minikube cluster
+[settings]
+  kubeContext = "Corp-SonarQubeEnterprise-AKS-DevTest"
+  bearerToken = true
+  clusterURI = "https://corp-sonarqubeenterprise-aks-devtest-d821b263.hcp.eastus2.azmk8s.io:443"
+  bearerTokenPath = "./token"
+
+[namespaces]
+  [namespaces.sonarqube-ext-dev]
+    protected = false
+
+
+[certificates]
+caCrt = "./cert.pem"
+
+
+[helmRepos]
+  nginx = "https://kubernetes.github.io/ingress-nginx"
+  sonarqube = "https://SonarSource.github.io/helm-chart-sonarqube"
+
+[apps]
+
+  [apps.nginx]
+    name = "nginx"
+    description = "nginx-ingress"
+    namespace = "sonarqube-ext-dev"
+    enabled = true
+    protected = false
+    chart = "nginx/ingress-nginx"
+    version = "4.4.0"
+    valuesFiles = []
+
+  [apps.nginx.set]
+    "controller.service.annotations.service\\.beta\\.kubernetes\\.io/azure-load-balancer-internal"="true"
+    "metrics.enabled"="false"
+    "controller.scope.enabled"="true"
+    "nodeSelector.beta.kubernetes\\.io/os"="linux"
+    "controller.service.externalTrafficPolicy"="Local"
+    #"controller.update-status"="false"
+    "rbac.scope"="true"
+    #"controller.watchNamespace"="sonarqube-ext-dev"
+    "controller.ingressClassName"="nginx"
+    # ingressClassName should have precedence before ingressClass
+    "controller.ingressClass"="nginx"
+    "controller.extraArgs.default-ssl-certificate"="sonarqube-ext-dev/sonarqube-tls"
+    # loadBalancerIP can be fixed only after the initial deployment of ingress controller
+    "controller.service.loadBalancerIP"="10.44.115.21"
+    # "controller.watchIngressWithoutClass"="true"
+
+  [apps.sonarqube]
+    name = "sonarqube" # should be unique across all apps
+    description = "sonarqube-enterprise"
+    namespace = "sonarqube-ext-dev"
+    enabled = true
+    protected = false
+    chart = "sonarqube/sonarqube"
+    version = "8.0.2" # chart version
+    valuesFiles = [ "./values.devtest.yaml"]
+
+  [apps.sonarqube.set]
+   "jdbcOverwrite.jdbcUsername"="$POSTGRES_DB_USER"
+   "jdbcOverwrite.jdbcPassword"="$POSTGRES_DB_PASSWORD"
+   "jdbcOverwrite.enable"="true"
+   "jdbcOverwrite.jdbcUrl"="jdbc:postgresql://$POSTGRES_SERVER:5432/sonarqube"

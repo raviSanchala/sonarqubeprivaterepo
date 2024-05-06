@@ -1,0 +1,27 @@
+[req]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+
+[req_distinguished_name]
+countryName                = Country Name (2 letter code)
+countryName_default        = GB
+
+stateOrProvinceName        = State or Province Name (full name)
+stateOrProvinceName_default= Middlesex
+
+localityName               = Locality Name (eg, city)
+localityName_default       = Brentford
+
+organizationName           = Organization Name (eg, company)
+organizationName_default   = GlaxoSmithKline Holdings Ltd
+
+commonName                 = Common Name (e.g. server FQDN or YOUR name)
+commonName_default         = sonarqube.corpnet4.com
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1	= sonarqube.corpnet4.com
+DNS.2   = sonarqube.corpnet4.net
